@@ -142,4 +142,3 @@ input guards), risk-band boundaries, every interest-premium combination,
 each eligibility rule independently and combined, the full
 orchestrator pipeline, and the controller through MockMvc.
 
-See `DEVELOPMENT_NOTES.md` for the design decisions and trade-offs.
