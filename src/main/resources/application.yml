@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: loan-eligibility-service
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ----------------------------------------------------------------------------
+# Lending policy
+#
+# Every business knob lives here. Risk teams can tune rates, premiums and
+# eligibility caps without a code change - just edit and restart (or swap
+# in a Spring Cloud Config server later).
+#
+# Values match the assignment spec exactly. If the spec ever moves, this
+# is the only file that needs to follow.
+# ----------------------------------------------------------------------------
+lending:
+  # Pricing
+  base-annual-rate-percent: 12.00
+
+  # Risk-band classification (lower bound, inclusive)
+  low-risk-score-floor: 750
+  medium-risk-score-floor: 650
+  high-risk-score-floor: 600
+
+  # Premiums stacked onto the base rate
+  medium-risk-premium: 1.50
+  high-risk-premium: 3.00
+  self-employed-premium: 1.00
+  large-loan-threshold: 1000000
+  large-loan-premium: 0.50
+
+  # Eligibility gates
+  min-credit-score: 600
+  max-age-at-maturity-years: 65
+  emi-to-income-hard-cap: 0.60
+
+  # Offer viability (stricter than the eligibility cap)
+  emi-to-income-offer-cap: 0.50
+
+# ----------------------------------------------------------------------------
+# Logging
+#
+# Levels are tunable per-package without a code change. The pattern includes
+# the requestId pulled from MDC (set by RequestLoggingFilter) so every line
+# is grep-able by request even when the app is busy.
+#
+# Defaults below ship a clean INFO-level audit trail. Flip the commented
+# DEBUG lines on to see the per-rule, per-calculation traces - useful for
+# debugging but noisy for production.
+# ----------------------------------------------------------------------------
+logging:
+  level:
+    root: INFO
+    in.rbihub.lending: DEBUG
+    # in.rbihub.lending.service: DEBUG          # rule + calculation traces
+    # in.rbihub.lending.service.EmiCalculator: DEBUG
+    # in.rbihub.lending.service.InterestRateCalculator: DEBUG
+    # in.rbihub.lending.service.EligibilityEvaluator: DEBUG
+    # org.springframework.web: DEBUG            # incoming request/response
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{requestId:--}] %logger{36} - %msg%n"
